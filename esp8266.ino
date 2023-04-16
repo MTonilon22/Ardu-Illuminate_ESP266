@@ -38,7 +38,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             }
             else if(cmd == "brightness:"){
               int brightness = cmd.substring(11).toInt();
-              analogWrite(ledpin,brightness);
+              analogWrite(ledpin,map(brightness,0,100,0,1023);
             }
 
              webSocket.sendTXT(num, cmd + ":success");
