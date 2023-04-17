@@ -32,13 +32,18 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             Serial.println(cmd);
 
             if(cmd == "poweron"){ //when command from app is "poweron"
-                digitalWrite(ledpin, 255);   //make ledpin output to HIGH  
+                digitalWrite(ledpin, 1023);   //make ledpin output to HIGH  
             }else if(cmd == "poweroff"){
                 digitalWrite(ledpin, 0);    //make ledpin output to LOW on 'pweroff' command.
             }
-            else if(cmd == "brightness:"){
-              int brightness = cmd.substring(11).toInt();
-              analogWrite(ledpin,map(brightness,0,100,0,1023);
+            else if(cmd.indexOf("brightness" >=0)){
+              String sliderValue = "0";
+              int dutyCycle;
+              sliderValue = cmd.substring(10);
+              dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
+              
+              //int brightness = cmd.substring(2).toInt();
+              analogWrite(ledpin,dutyCycle);
             }
 
              webSocket.sendTXT(num, cmd + ":success");
