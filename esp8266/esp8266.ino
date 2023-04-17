@@ -36,9 +36,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             }else if(cmd == "poweroff"){
                 digitalWrite(ledpin, LOW);    //make ledpin output to LOW on 'pweroff' command.
             }
-               else if(cmd == "brightness:"){
-              int brightness = cmd.substring(11).toInt();
-              analogWrite(ledpin,map(brightness,0,100,0,1023));
+               else if(cmd.indexOf("brightness" >=0)){
+              String sliderValue = "0";
+              int dutyCycle;
+              sliderValue = cmd.substring(10);
+              dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
+              analogWrite(ledpin,dutyCycle);
             }
 
              webSocket.sendTXT(num, cmd + ":success");

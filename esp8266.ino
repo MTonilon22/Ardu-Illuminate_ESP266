@@ -41,8 +41,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
               int dutyCycle;
               sliderValue = cmd.substring(10);
               dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
-              
-              //int brightness = cmd.substring(2).toInt();
               analogWrite(ledpin,dutyCycle);
             }
 
