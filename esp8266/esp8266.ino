@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h> //import for wifi functionality
 #include <WebSocketsServer.h> //import for websocket
@@ -5,17 +6,18 @@
 
 #define ledpin D2 //defining the OUTPUT pin for LED (D4)
 
-const char *ssid =  "Ardu-Illuminate";   //Wifi SSID (Name)   
-const char *pass =  "123456789"; //wifi password
+const char *ssid =  "Legazy Z_GLOBE SHIT";   //Wifi SSID (Name)   
+const char *pass =  "M@tr1xt3ch112"; //wifi password
 
 WebSocketsServer webSocket = WebSocketsServer(81); //websocket init with port 81
+WiFiClient client;
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 //webscket event method
     String cmd = "";
     switch(type) {
         case WStype_DISCONNECTED:
-            Serial.println("Websocket is disconnected");
+            Serial.println("We bsocket is disconnected");
             //case when Websocket is disconnected
             break;
         case WStype_CONNECTED:{
@@ -38,7 +40,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             }
                else if(cmd.indexOf("brightness" >=0)){
               String sliderValue = "0";
-              int dutyCycle;
+              int dutyCycle;           
               sliderValue = cmd.substring(10);
               dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
               analogWrite(ledpin,dutyCycle);
@@ -60,16 +62,39 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
     }
 }
 
+void connectToWiFi(){
+  
+   Serial.println("Connecting to wifi");
+   WiFi.begin(ssid,pass);
+   int retries = 0;
+   while ((WiFi.status() != WL_CONNECTED)&& (retries < 15)) {
+      retries++;
+      delay(500);
+      
+    }
+
+    if(retries > 14 ) {
+        Serial.println(F("WiFi connection FAILED"));
+      }
+
+     if (WiFi.status() == WL_CONNECTED) {
+    Serial.println(F("WiFi connected!"));
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+}
+  }
+
 void setup() {
    pinMode(ledpin, OUTPUT); //set ledpin (D2) as OUTPUT pin
    Serial.begin(9600); //serial start
 
-   Serial.println("Connecting to wifi");
+  
    
-   IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
-   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); //set Static IP gateway on NodeMCU
-   WiFi.softAP(ssid, pass); //turn on WIFI
+//   IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
+//   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); //set Static IP gateway on NodeMCU
+//   WiFi.softAP(ssid, pass); //turn on WIFI
 
+    connectToWiFi();
    webSocket.begin(); //websocket Begin
    webSocket.onEvent(webSocketEvent); //set Event for websocket
    Serial.println("Websocket is started");
