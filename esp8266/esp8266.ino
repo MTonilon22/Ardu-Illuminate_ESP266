@@ -6,8 +6,8 @@
 
 #define ledpin D2 //defining the OUTPUT pin for LED (D4)
 
-const char *ssid =  "Legazy Z_GLOBE SHIT";   //Wifi SSID (Name)   
-const char *pass =  "M@tr1xt3ch112"; //wifi password
+const char *ssid =  "CCS-WIFI";   //Wifi SSID (Name)   
+const char *pass =  "OpenJDK!"; //wifi password
 
 WebSocketsServer webSocket = WebSocketsServer(81); //websocket init with port 81
 WiFiClient client;
