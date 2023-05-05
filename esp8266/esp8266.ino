@@ -4,10 +4,15 @@
 #include <WebSocketsServer.h> //import for websocket
 
 
-#define ledpin D2 //defining the OUTPUT pin for LED (D4)
+#define RELAY_PIN D1 //defining the OUTPUT pin for LED (D4)
 
-const char *ssid =  "CCS-WIFI";   //Wifi SSID (Name)   
-const char *pass =  "OpenJDK!"; //wifi password
+#define RELAY_ON LOW
+const int relay = 5;
+
+
+
+const char *ssid =  "S A G A R I N O";   //Wifi SSID (Name)   
+const char *pass =  "741895623"; //wifi password
 
 WebSocketsServer webSocket = WebSocketsServer(81); //websocket init with port 81
 WiFiClient client;
@@ -15,9 +20,11 @@ WiFiClient client;
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 //webscket event method
     String cmd = "";
+  //  pinMode(relay,OUTPUT);
+    
     switch(type) {
         case WStype_DISCONNECTED:
-            Serial.println("We bsocket is disconnected");
+            Serial.println("We bsocket is disconnMected");
             //case when Websocket is disconnected
             break;
         case WStype_CONNECTED:{
@@ -27,23 +34,30 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             webSocket.sendTXT(num, "connected");}
             break;
         case WStype_TEXT:
+        pinMode(relay,OUTPUT);
             cmd = "";
-            for(int i = 0; i < length; i++) {
+            for(int i = 0; i < length; i++) { 
                 cmd = cmd + (char) payload[i]; 
             } //merging payload to single string
             Serial.println(cmd);
 
             if(cmd == "poweron"){ //when command from app is "poweron"
-                digitalWrite(ledpin, HIGH);   //make ledpin output to HIGH  
+              
+                digitalWrite(RELAY_PIN, RELAY_ON);
+              
+                   //make ledpin output to HIGH  
             }else if(cmd == "poweroff"){
-                digitalWrite(ledpin, LOW);    //make ledpin output to LOW on 'pweroff' command.
+               
+                digitalWrite(RELAY_PIN, !RELAY_ON);
+              
+                  //make ledpin output to LOW on 'pweroff' command.
             }
                else if(cmd.indexOf("brightness" >=0)){
               String sliderValue = "0";
               int dutyCycle;           
               sliderValue = cmd.substring(10);
               dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
-              analogWrite(ledpin,dutyCycle);
+              analogWrite(RELAY_PIN,dutyCycle);
             }
 
              webSocket.sendTXT(num, cmd + ":success");
@@ -85,16 +99,16 @@ void connectToWiFi(){
   }
 
 void setup() {
-   pinMode(ledpin, OUTPUT); //set ledpin (D2) as OUTPUT pin
+   pinMode(RELAY_PIN, OUTPUT); //set ledpin (D2) as OUTPUT pin
    Serial.begin(9600); //serial start
 
   
-   
+//   
 //   IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
 //   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); //set Static IP gateway on NodeMCU
 //   WiFi.softAP(ssid, pass); //turn on WIFI
 
-    connectToWiFi();
+   connectToWiFi();
    webSocket.begin(); //websocket Begin
    webSocket.onEvent(webSocketEvent); //set Event for websocket
    Serial.println("Websocket is started");
