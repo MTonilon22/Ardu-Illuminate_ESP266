@@ -52,12 +52,17 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
               
                   //make ledpin output to LOW on 'pweroff' command.
             }
-               else if(cmd.indexOf("brightness" >=0)){
-              String sliderValue = "0";
-              int dutyCycle;           
-              sliderValue = cmd.substring(10);
-              dutyCycle = map(sliderValue.toInt(),0,100,0,1023);
-              analogWrite(RELAY_PIN,dutyCycle);
+              else if(cmd.indexOf("brightness") >= 0) {
+                String sliderValue = cmd.substring(10);
+                int dutyCycle = map(sliderValue.toInt(), 0, 100, 0, 1023);
+                if(dutyCycle > 0) {
+                    digitalWrite(RELAY_PIN, HIGH); // turn on the relay if duty cycle is greater than 0
+                    delay(dutyCycle * 10); // wait for a time proportional to the duty cycle
+                    digitalWrite(RELAY_PIN, LOW); // turn off the relay
+                    delay((100 - dutyCycle) * 10); // wait for the remaining time
+                } else {
+                    digitalWrite(RELAY_PIN, LOW); // turn off the relay if duty cycle is 0
+                }
             }
 
              webSocket.sendTXT(num, cmd + ":success");
