@@ -11,8 +11,8 @@ const int relay = 5;
 
 
 
-const char *ssid =  "S A G A R I N O";   //Wifi SSID (Name)   
-const char *pass =  "741895623"; //wifi password
+const char *ssid =  "Ardu-Illuminate";   //Wifi SSID (Name)   
+const char *pass =  "123456789"; //wifi password
 
 WebSocketsServer webSocket = WebSocketsServer(81); //websocket init with port 81
 WiFiClient client;
@@ -41,18 +41,14 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             } //merging payload to single string
             Serial.println(cmd);
 
-            if(cmd == "poweron"){ //when command from app is "poweron"
+            if(cmd == "poweron"){ 
               
                 digitalWrite(RELAY_PIN, RELAY_ON);
-              
-                   //make ledpin output to HIGH  
             }else if(cmd == "poweroff"){
                
                 digitalWrite(RELAY_PIN, !RELAY_ON);
-              
-                  //make ledpin output to LOW on 'pweroff' command.
-            }
-              else if(cmd.indexOf("brightness") >= 0) {
+
+            }else if(cmd.indexOf("brightness") >= 0) {
                 String sliderValue = cmd.substring(10);
                 int dutyCycle = map(sliderValue.toInt(), 0, 100, 0, 1023);
                 if(dutyCycle > 0) {
@@ -63,6 +59,23 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 } else {
                     digitalWrite(RELAY_PIN, LOW); // turn off the relay if duty cycle is 0
                 }
+            }else if(cmd.indexOf("ssid")) >=0) {
+               String newSsid = cmd.substring(4);
+               Serial.print("New SSID: ");
+               Serial.println(newSsid);
+               WiFi.disconnect(); // Disconnect from current network
+               delay(1000);
+               WiFi.mode(WIFI_STA); // Set Wi-Fi mode to station mode
+               WiFi.begin(newSsid.c_str(), wifiPassword.c_str()); // Connect to new network
+            else if(cmd.indexOf("password"))){
+              String newPassword = cmd.substring(8);
+              Serial.print("New Password: ");
+              Serial.println(newPassword);
+              Wifi.disconnect();
+              delay(1000);
+              Wifi.mode(WIFI_STA);
+              Wifi.begin(newSsid.c_str(), wifiPassword.c_str());
+
             }
 
              webSocket.sendTXT(num, cmd + ":success");
@@ -108,10 +121,11 @@ void setup() {
    Serial.begin(9600); //serial start
 
   
-//   
-//   IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
-//   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); //set Static IP gateway on NodeMCU
-//   WiFi.softAP(ssid, pass); //turn on WIFI
+  
+  IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
+  IPAdress subnet(255,255,255,0);
+  WiFi.softAPConfig(apIP, apIP,subnet); //set Static IP gateway on NodeMCU
+  WiFi.softAP(ssid, pass); //turn on WIFI
 
    connectToWiFi();
    webSocket.begin(); //websocket Begin
