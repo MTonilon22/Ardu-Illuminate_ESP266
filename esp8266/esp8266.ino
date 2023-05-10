@@ -20,6 +20,8 @@ WiFiClient client;
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 //webscket event method
     String cmd = "";
+    String newSsid = "";
+    String newPassword = "";
   //  pinMode(relay,OUTPUT);
     
     switch(type) {
@@ -59,24 +61,29 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 } else {
                     digitalWrite(RELAY_PIN, LOW); // turn off the relay if duty cycle is 0
                 }
-            }else if(cmd.indexOf("ssid")) >=0) {
-               String newSsid = cmd.substring(4);
+            }else if(cmd.indexOf("ssid") >=0 && cmd.indexOf("password") > =0) {
+              newSsid = cmd.substring(4);
+              newPassword = cmd.substring(8);
+
                Serial.print("New SSID: ");
                Serial.println(newSsid);
+               Serial.print("New Password: ");
+               Serial.println(newPassword);
                WiFi.disconnect(); // Disconnect from current network
                delay(1000);
                WiFi.mode(WIFI_STA); // Set Wi-Fi mode to station mode
-               WiFi.begin(newSsid.c_str(), wifiPassword.c_str()); // Connect to new network
-            else if(cmd.indexOf("password"))){
-              String newPassword = cmd.substring(8);
-              Serial.print("New Password: ");
-              Serial.println(newPassword);
-              Wifi.disconnect();
-              delay(1000);
-              Wifi.mode(WIFI_STA);
-              Wifi.begin(newSsid.c_str(), wifiPassword.c_str());
-
+               WiFi.begin(newSsid.c_str(), newPassword.c_str()); // Connect to new network
             }
+            // else if(cmd.indexOf("password") >=0){
+            //   newPassword = cmd.substring(8);
+            //   Serial.print("New Password: ");
+            //   Serial.println(newPassword);
+            //   WiFi.disconnect();
+            //   delay(1000);
+            //   WiFi.mode(WIFI_STA);
+            //   WiFi.begin(newSsid.c_str(), newPassword.c_str());
+
+            // }
 
              webSocket.sendTXT(num, cmd + ":success");
              //send response to mobile, if command is "poweron" then response will be "poweron:success"
@@ -123,8 +130,8 @@ void setup() {
   
   
   IPAddress apIP(192, 168, 0, 1);   //Static IP for wifi gateway
-  IPAdress subnet(255,255,255,0);
-  WiFi.softAPConfig(apIP, apIP,subnet); //set Static IP gateway on NodeMCU
+  IPAddress subnet(255,255,255,0);
+  WiFi.softAPConfig(apIP, apIP, subnet); //set Static IP gateway on NodeMCU
   WiFi.softAP(ssid, pass); //turn on WIFI
 
    connectToWiFi();
